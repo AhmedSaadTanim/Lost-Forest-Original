@@ -20,10 +20,10 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerInput input;
     private Vector2 movementInput;
-    public Vector2 getMovementInput => movementInput;
+    public Vector2 GetMovementInput => movementInput;
     private bool canJump = true;
-    private bool doubleJump = false;
-    private bool canDash = true, isDashing = false;
+    private bool doubleJump;
+    private bool canDash = true, isDashing;
 
     [Header("Player Movement Variables")]
     [SerializeField] float moveSpeed;
@@ -66,12 +66,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        performMovement();
+        PerformMovement();
     }
 
     #region Player Movement Functions
 
-    private void performMovement()
+    private void PerformMovement()
     {
         // Move the player
         moveSpeed = isDashing ? dashSpeed : moveSpeed;
@@ -94,9 +94,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void Flip(Vector2 movementInput)
+    private void Flip(Vector2 moveInput)
     {
-        float direction = movementInput.x > 0f ? 0f : 180f;
+        float direction = moveInput.x > 0f ? 0f : 180f;
         transform.rotation = Quaternion.Euler(0f, direction, 0f);
     }
 
@@ -110,19 +110,20 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-
+        
+        Vector2 velocity = Player.playerRb.velocity;
+        
         //jump performed when jump button is pressed, if cancelled early jump 
         //height is reduced by half and can only double jump if player is in the air
         if (obj.performed && (canJump || doubleJump))
         {
-            Player.playerRb.velocity = new Vector2(Player.playerRb.velocity.x, jumpForce);
+            Player.playerRb.velocity = new Vector2(velocity.x, jumpForce);
             doubleJump = canJump;
             canJump = false;
         }
         else if (obj.canceled && Player.playerRb.velocity.y > 0)
         {
-            Player.playerRb.velocity = new Vector2(Player.playerRb.velocity.x,
-                                                   Player.playerRb.velocity.y * 0.5f);
+            Player.playerRb.velocity = new Vector2(Player.playerRb.velocity.x, velocity.y * 0.5f);
         }
     }
 
@@ -137,20 +138,20 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        Vector2 velocity = Player.playerRb.velocity;
+        
         //dash performed when dash button is pressed, if cancelled early dash 
         //distance is reduced by half and can only dash if player is on the ground
         if (obj.performed && canDash)
         {
             Debug.Log("Dash");
-            Player.playerRb.velocity = new Vector2(Player.playerRb.velocity.x * dashSpeed,
-                                                   Player.playerRb.velocity.y);
+            Player.playerRb.velocity = new Vector2(velocity.x * dashSpeed, Player.playerRb.velocity.y);
             canDash = false;
             isDashing = true;
         }
-        else if (obj.canceled && Player.playerRb.velocity.x > 0)
+        else if (obj.canceled && velocity.x > 0)
         {
-            Player.playerRb.velocity = new Vector2(Player.playerRb.velocity.x * 0.5f,
-                                                   Player.playerRb.velocity.y);
+            Player.playerRb.velocity = new Vector2(velocity.x * 0.5f, velocity.y);
         }
     }
 

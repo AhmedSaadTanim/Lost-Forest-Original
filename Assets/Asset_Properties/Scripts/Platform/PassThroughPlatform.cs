@@ -15,7 +15,7 @@ public class PassThroughPlatform : MonoBehaviour
 
     private void Update()
     {
-        if (isPlayerOnPlatform && playerMovementRef.getMovementInput.y < 0)
+        if (isPlayerOnPlatform && playerMovementRef.GetMovementInput.y < 0)
         {
             platformCollider.enabled = false;
             StartCoroutine(EnableCollider());
