@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -709,7 +710,7 @@ GameObject:
   - component: {fileID: 970398667}
   m_Layer: 0
   m_Name: Square (1)
-  m_TagString: Ground
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -869,23 +870,6 @@ Transform:
   - {fileID: 1813026836}
   m_Father: {fileID: 888014197}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1355344450 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8288646606857388384, guid: b043656b0defd80408d7ad2bf0485bee, type: 3}
-  m_PrefabInstance: {fileID: 4218035796200093009}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1355344455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355344450}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce26c15e8da64b1408eb294292a302a5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1355344460 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1137967373215267358, guid: b043656b0defd80408d7ad2bf0485bee, type: 3}
@@ -1026,7 +1010,7 @@ GameObject:
   - component: {fileID: 1813026837}
   m_Layer: 0
   m_Name: Square (2)
-  m_TagString: Ground
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1252,6 +1236,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1207278583963019632, guid: 4068fb2bfbbcc21438b45c9c77f912e6, type: 3}
+      propertyPath: dashSpeed
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1207278583963019632, guid: 4068fb2bfbbcc21438b45c9c77f912e6, type: 3}
+      propertyPath: dashCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1207278583963019632, guid: 4068fb2bfbbcc21438b45c9c77f912e6, type: 3}
+      propertyPath: dashDuration
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5792026135303900466, guid: 4068fb2bfbbcc21438b45c9c77f912e6, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1364,10 +1360,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8288646606857388384, guid: b043656b0defd80408d7ad2bf0485bee, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1355344455}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b043656b0defd80408d7ad2bf0485bee, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

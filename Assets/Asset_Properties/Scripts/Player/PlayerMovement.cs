@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,12 +24,16 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 GetMovementInput => movementInput;
     private bool canJump = true;
     private bool doubleJump;
-    private bool canDash = true, isDashing;
-
+    private bool canDash = true;
+    private bool isDashing;
+    private bool hasAirDashed;
+    
     [Header("Player Movement Variables")]
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
     [SerializeField] float dashSpeed;
+    [SerializeField] float dashDuration;
+    [SerializeField] float dashCooldown;
 
     #endregion
 
@@ -48,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
         input.Player.Enable();
         player = GetComponent<Player>();
         player.IsPlayerControlEnabled = true;
+        player.IsPlayerMovementEnabled = true;
         InputSubscriptions();
     }
 
@@ -66,7 +72,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        PerformMovement();
+        if (player.IsPlayerMovementEnabled)
+        {
+            PerformMovement();
+        }
     }
 
     #region Player Movement Functions
@@ -74,9 +83,7 @@ public class PlayerMovement : MonoBehaviour
     private void PerformMovement()
     {
         // Move the player
-        moveSpeed = isDashing ? dashSpeed : moveSpeed;
-        Player.playerRb.linearVelocity = new Vector2(movementInput.x * moveSpeed,
-                                                Player.playerRb.linearVelocity.y);
+        Player.playerRb.linearVelocity = new Vector2(movementInput.x * moveSpeed, Player.playerRb.linearVelocity.y);
     }
 
     private void Move(InputAction.CallbackContext obj)
@@ -118,12 +125,12 @@ public class PlayerMovement : MonoBehaviour
         if (obj.performed && (canJump || doubleJump))
         {
             Player.playerRb.linearVelocity = new Vector2(velocity.x, jumpForce);
-            doubleJump = canJump;
+            doubleJump = canJump && doubleJump;
             canJump = false;
         }
         else if (obj.canceled && Player.playerRb.linearVelocity.y > 0)
         {
-            Player.playerRb.linearVelocity = new Vector2(Player.playerRb.linearVelocity.x, velocity.y * 0.5f);
+            Player.playerRb.linearVelocity = new Vector2(velocity.x, velocity.y * 0.5f);
         }
     }
 
@@ -137,24 +144,38 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-
-        Vector2 velocity = Player.playerRb.linearVelocity;
         
         //dash performed when dash button is pressed, if cancelled early dash 
         //distance is reduced by half and can only dash if player is on the ground
-        if (obj.performed && canDash)
+        if (obj.performed && (canDash || !hasAirDashed))
         {
             Debug.Log("Dash");
-            Player.playerRb.linearVelocity = new Vector2(velocity.x * dashSpeed, Player.playerRb.linearVelocity.y);
-            canDash = false;
-            isDashing = true;
-        }
-        else if (obj.canceled && velocity.x > 0)
-        {
-            Player.playerRb.linearVelocity = new Vector2(velocity.x * 0.5f, velocity.y);
+            StartCoroutine(DashCoroutine());
         }
     }
+    
+    private IEnumerator DashCoroutine()
+    {
+        if (!hasAirDashed) hasAirDashed = true;
+        canDash = false;  // Prevent multiple dashes
+        isDashing = true;
+        player.IsPlayerMovementEnabled = false;  // Disable normal movement during dash
+        
+        Vector2 dashDirection = new Vector2(transform.right.x, 0f).normalized;  // Direction the player is facing
 
+        // Apply the burst force to move player in the X direction
+        Player.playerRb.linearVelocity = new Vector2(dashDirection.x * dashSpeed, Player.playerRb.linearVelocity.y);
+
+        // Wait for the dash duration (burst time)
+        yield return new WaitForSeconds(dashDuration);
+        
+        isDashing = false;
+        player.IsPlayerMovementEnabled = true;  // Re-enable normal movement
+
+        yield return new WaitForSeconds(dashCooldown);  // Wait for cooldown
+        canDash = true;  // Allow dashing again
+    }
+    
     #endregion
 
     #region Player Attack Functions
@@ -205,9 +226,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Ground"))
         {
+            hasAirDashed = true; // Reset air dash on landing
+            canDash = true;
             canJump = true;
             doubleJump = true;
             isGrounded = true;
+        }
+        else if (other.gameObject.CompareTag("Wall"))
+        {
+            canJump = true;
+            doubleJump = false;
+            isGrounded = false;
         }
     }
 
@@ -216,6 +245,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.CompareTag("Ground"))
         {
             canDash = false;
+            hasAirDashed = false;
             isGrounded = false;
         }
     }

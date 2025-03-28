@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public PlayerMovement movement;
     public PlayerAnimation animation;
     public bool IsPlayerControlEnabled { get; set; }
+    public bool IsPlayerMovementEnabled { get; set; }
 
     private void Start()
     {
