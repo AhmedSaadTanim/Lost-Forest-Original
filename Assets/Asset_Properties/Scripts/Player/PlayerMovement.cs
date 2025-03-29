@@ -34,7 +34,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float dashSpeed;
     [SerializeField] float dashDuration;
     [SerializeField] float dashCooldown;
-
+    [SerializeField] LayerMask groundLayer;
+    
     #endregion
 
     #region Properties
@@ -134,6 +135,22 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    bool IsGrounded() 
+    {
+        float extraHeight = 0.1f;
+        Vector2 rayOrigin = new Vector2(Player.playerCollider.bounds.center.x, Player.playerCollider.bounds.min.y - 0.05f);
+        float rayLength = Player.playerCollider.bounds.extents.y + extraHeight;
+
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, groundLayer);
+
+        // Debug the Raycast in the Scene view
+        Debug.DrawLine(rayOrigin, rayOrigin + Vector2.down * rayLength, hit.collider != null ? Color.green : Color.red, 0.1f);
+
+        return hit.collider != null;
+    }
+
+
+    
     #endregion
 
     #region Player Dash Functions
@@ -224,7 +241,7 @@ public class PlayerMovement : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Ground"))
+        if (other.gameObject.CompareTag("Ground") && IsGrounded())
         {
             hasAirDashed = true; // Reset air dash on landing
             canDash = true;

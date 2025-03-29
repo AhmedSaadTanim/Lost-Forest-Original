@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 21642888161822269}
   - component: {fileID: 3084100698028466626}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 2267714641902904837}
   - component: {fileID: 7534833670111539244}
   - component: {fileID: 7446296099999858488}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Dust PS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4935,7 +4935,7 @@ GameObject:
   - component: {fileID: 4127418875129297892}
   - component: {fileID: 1207278583963019632}
   - component: {fileID: 6115137468447610157}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5053,7 +5053,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &4127418875129297892
 MonoBehaviour:
@@ -5085,6 +5085,11 @@ MonoBehaviour:
   moveSpeed: 15
   jumpForce: 35
   dashSpeed: 100
+  dashDuration: 0
+  dashCooldown: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &6115137468447610157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5108,7 +5113,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 939463574604677324}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SwordHand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5189,12 +5194,20 @@ PrefabInstance:
       value: vfx_Slash
       objectReference: {fileID: 0}
     - target: {fileID: 2861172487274247075, guid: d8ab912dc69c9ce4baed0727a1c8e19a, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861172487274247075, guid: d8ab912dc69c9ce4baed0727a1c8e19a, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4165857388654505134, guid: d8ab912dc69c9ce4baed0727a1c8e19a, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6917601601323000457, guid: d8ab912dc69c9ce4baed0727a1c8e19a, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5217,6 +5230,10 @@ PrefabInstance:
     - target: {fileID: 2568180486715719162, guid: 9b434c0eb6751ee43ab3c1d26bce95f1, type: 3}
       propertyPath: m_Name
       value: Sword
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568180486715719162, guid: 9b434c0eb6751ee43ab3c1d26bce95f1, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2568180486715719162, guid: 9b434c0eb6751ee43ab3c1d26bce95f1, type: 3}
       propertyPath: m_IsActive
