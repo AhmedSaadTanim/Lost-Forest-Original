@@ -62,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
     {
         input.Player.Movement.performed += Move;
         input.Player.Movement.canceled += Move;
-
+        
         input.Player.Jump.performed += Jump;
         input.Player.Jump.canceled += Jump;
 
