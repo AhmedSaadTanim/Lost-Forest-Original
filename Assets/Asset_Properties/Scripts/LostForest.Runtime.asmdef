@@ -1,10 +1,8 @@
 {
-    "name": "Player",
-    "rootNamespace": "",
+    "name": "LostForest.Runtime",
+    "rootNamespace": "LostForest",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:6e69fbe8782682e4a9178f6ad606a491",
-        "GUID:35f851b98ca8166488bee98406bd830e"
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
