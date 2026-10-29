@@ -1,21 +1,30 @@
 using UnityEngine;
 
-public class Player : MonoBehaviour
+namespace LostForest.Gameplay
 {
-    public static Rigidbody2D playerRb;
-    public static Collider2D playerCollider;
-    public PlayerMovement movement;
-    public PlayerAnimation animation;
-    public bool IsPlayerControlEnabled { get; set; }
-    public bool IsPlayerMovementEnabled { get; set; }
-
-    private void Start()
+    [RequireComponent(typeof(PlayerMovement))]
+    [RequireComponent(typeof(PlayerRespawn))]
+    public class Player : MonoBehaviour
     {
-        playerRb = GetComponent<Rigidbody2D>();
-        playerCollider = GetComponent<Collider2D>();
+        public Rigidbody2D Body { get; private set; }
+        public Collider2D Collider { get; private set; }
+    
+        public PlayerMovement Movement { get; private set; }
+        public PlayerAnimation Animation { get; private set; }
+        public PlayerRespawn Respawn { get; private set; }
+    
+        public bool IsPlayerControlEnabled { get; set; }
+        public bool IsPlayerMovementEnabled { get; set; }
 
-        movement = GetComponent<PlayerMovement>();
-        animation = GetComponent<PlayerAnimation>();
+        private void Start()
+        {
+            Body = GetComponent<Rigidbody2D>();
+            Collider = GetComponent<Collider2D>();
+
+            Movement = GetComponent<PlayerMovement>();
+            Animation = GetComponent<PlayerAnimation>();
+            Respawn = GetComponent<PlayerRespawn>();
+        }
     }
-
 }
+

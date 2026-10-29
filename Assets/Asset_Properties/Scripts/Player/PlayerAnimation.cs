@@ -1,50 +1,53 @@
 using System.Collections.Generic;
+using LostForest.Common;
 using UnityEngine;
 
-public class PlayerAnimation : MonoBehaviour
+namespace LostForest.Gameplay
 {
-    public Animator animator;
-    string currentState;
-    public bool isAnimationComplete;
-    public Dictionary<string, bool> animationStateComplete;
-
-    void Awake()
+    public class PlayerAnimation : MonoBehaviour
     {
-        animator = GetComponent<Animator>();
-    }
+        public Animator animator;
+        string currentState;
+        public bool isAnimationComplete;
+        public Dictionary<string, bool> animationStateComplete;
 
-    void Start()
-    {
-        animationStateComplete = new Dictionary<string, bool>();
-    }
-
-    public void ChangeAnimationState(string newState)
-    {
-        if (currentState == newState)
-            return;
-
-        if (!animationStateComplete.ContainsKey(newState))
+        void Awake()
         {
-            animationStateComplete.Add(newState, false);
+            animator = GetComponent<Animator>();
         }
 
-
-        animator.Play(newState);
-        animationStateComplete[newState] = false;
-
-        currentState = newState;
-    }
-
-    public void OnAnimationComplete(AnimationEvent animationEvent)
-    {
-        AnimatorClipInfo clipInfo = animationEvent.animatorClipInfo;
-        string stateName = clipInfo.clip.name;
-        animationStateComplete[stateName] = true;
-
-        if (stateName.Equals(States.PLAYER_ATTACK_1))
+        void Start()
         {
-            ChangeAnimationState(States.PLAYER_IDLE);
+            animationStateComplete = new Dictionary<string, bool>();
+        }
+
+        public void ChangeAnimationState(string newState)
+        {
+            if (currentState == newState)
+                return;
+
+            if (!animationStateComplete.ContainsKey(newState))
+            {
+                animationStateComplete.Add(newState, false);
+            }
+
+
+            animator.Play(newState);
+            animationStateComplete[newState] = false;
+
+            currentState = newState;
+        }
+
+        public void OnAnimationComplete(AnimationEvent animationEvent)
+        {
+            AnimatorClipInfo clipInfo = animationEvent.animatorClipInfo;
+            string stateName = clipInfo.clip.name;
+            animationStateComplete[stateName] = true;
+
+            if (stateName.Equals(States.PLAYER_ATTACK_1))
+            {
+                ChangeAnimationState(States.PLAYER_IDLE);
+            }
         }
     }
-
 }
