@@ -1,0 +1,18 @@
+{
+    "name": "LostForest",
+    "rootNamespace": "",
+    "references": [
+        "GUID:92353d4aa2cad0b43b04b833d598004c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
