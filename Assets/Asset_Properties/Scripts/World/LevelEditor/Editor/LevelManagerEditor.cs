@@ -18,14 +18,59 @@ namespace LostForest.Editor
 
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             {
-                if (GUILayout.Button("Bake Room Layout"))
+                if (GUILayout.Button("Build Room Layout"))
                 {
-                    BakeRoomLayout();
+                    BuildRoomLayout();
+                }
+
+                if (GUILayout.Button("Bake Positions Only"))
+                {
+                    TryRunStage("Bake Room Layout", TryBakeRoomLayout);
                 }
             }
         }
 
-        private void BakeRoomLayout()
+        private void BuildRoomLayout()
+        {
+            if (!TryRunStage("Generate Room Data", RoomDataGenerator.TryGenerateRoomData))
+            {
+                return;
+            }
+
+            if (!TryRunStage("Bake Room Layout", TryBakeRoomLayout))
+            {
+                return;
+            }
+
+            if (!TryRunStage("Update Room Catalog", RoomCatalogGenerator.TryUpdateRoomCatalog))
+            {
+                return;
+            }
+
+            Debug.Log("Build Room Layout completed successfully: room data generated, positions baked, and catalog updated.", target);
+        }
+        
+        private bool TryRunStage(string stageName, System.Func<bool> stage)
+        {
+            try
+            {
+                if (!stage())
+                {
+                    Debug.LogError($"Build Room Layout failed at stage: '{stageName}'. Check the preceding Console messages for details.", target);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogError($"Build Room Layout failed at stage: '{stageName}'. Exception: {exception.Message}", target);
+                Debug.LogException(exception, target);
+                return false;
+            }
+        }
+        
+        private bool TryBakeRoomLayout()
         {
             serializedObject.Update();
 
@@ -34,13 +79,13 @@ namespace LostForest.Editor
             if (container == null)
             {
                 Debug.LogError("Assign Room Container first.", target);
-                return;
+                return false;
             }
 
             if (!AssetDatabase.IsValidFolder(DataFolder))
             {
                 Debug.LogError("Generate Room Data before baking the layout.", target);
-                return;
+                return false;
             }
 
             var dataByPrefab = new Dictionary<GameObject, RoomData>();
@@ -59,7 +104,7 @@ namespace LostForest.Editor
                 if (dataByPrefab.ContainsKey(data.Prefab))
                 {
                     Debug.LogError($"Multiple RoomData assets reference '{data.Prefab.name}'. Resolve the duplicate first.", data);
-                    return;
+                    return false;
                 }
 
                 dataByPrefab.Add(data.Prefab, data);
@@ -75,7 +120,7 @@ namespace LostForest.Editor
                 if (!PrefabUtility.IsAnyPrefabInstanceRoot(room))
                 {
                     Debug.LogError($"'{room.name}' must be a room prefab instance.", room);
-                    return;
+                    return false;
                 }
 
                 GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource(room);
@@ -83,20 +128,20 @@ namespace LostForest.Editor
                 if (prefab == null || !dataByPrefab.TryGetValue(prefab, out RoomData data))
                 {
                     Debug.LogError($"No generated RoomData found for '{room.name}'. Run Generate Room Data first.", room);
-                    return;
+                    return false;
                 }
 
                 if (Quaternion.Angle(child.rotation, Quaternion.identity) > 0.01f ||
                     (child.lossyScale - Vector3.one).sqrMagnitude > 0.0001f)
                 {
                     Debug.LogError($"'{room.name}' must have zero world rotation and unit world scale.", room);
-                    return;
+                    return false;
                 }
 
                 if (placements.ContainsKey(data))
                 {
                     Debug.LogError($"'{prefab.name}' appears more than once. The current data format stores one position per prefab.", room);
-                    return;
+                    return false;
                 }
 
                 placements.Add(data, child.position);
@@ -105,7 +150,7 @@ namespace LostForest.Editor
             if (placements.Count == 0)
             {
                 Debug.LogWarning("Room Container has no rooms to bake.", target);
-                return;
+                return false;
             }
 
             Undo.IncrementCurrentGroup();
@@ -124,6 +169,8 @@ namespace LostForest.Editor
             AssetDatabase.SaveAssets();
 
             Debug.Log($"Saved positions into {placements.Count} RoomData assets.", target);
+
+            return true;
         }
     }
 }

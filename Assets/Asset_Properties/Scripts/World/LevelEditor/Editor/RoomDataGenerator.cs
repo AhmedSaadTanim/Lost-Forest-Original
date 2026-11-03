@@ -13,94 +13,63 @@ namespace LostForest.Editor
         [MenuItem("Lost Forest/Rooms/Generate Room Data")]
         private static void GenerateRoomData()
         {
+            TryGenerateRoomData();
+        }
+        
+        [MenuItem("Lost Forest/Rooms/Generate Room Data")]
+        public static bool TryGenerateRoomData()
+        {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                return;
+                return false;
             }
 
             if (!AssetDatabase.IsValidFolder(PrefabFolder))
             {
                 Debug.LogError($"Prefab folder not found: {PrefabFolder}");
-                return;
+                return false;
             }
 
             EnsureFolder(DataFolder);
-
-            var roomPrefabs = new SortedDictionary<int, GameObject>();
-            string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { PrefabFolder });
-
-            // Validate all prefab names before modifying assets.
-            foreach (string guid in prefabGuids)
+            
+            if (!TryCollectRoomPrefabs(out var roomPrefabs))
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-
-                if (prefab == null || prefab.GetComponent<RoomBounds>() == null)
-                {
-                    continue;
-                }
-
-                if (!TryGetSerial(prefab.name, out int serial))
-                {
-                    Debug.LogError($"Expected 'Room' or 'Room <number>', found '{prefab.name}'.", prefab);
-                    return;
-                }
-
-                if (roomPrefabs.ContainsKey(serial))
-                {
-                    Debug.LogError($"Multiple room prefabs map to r{serial:D2}. Give each room a unique number.", prefab);
-                    return;
-                }
-
-                roomPrefabs.Add(serial, prefab);
+                return false;
             }
 
-            var existingData = new List<RoomData>();
-            string[] dataGuids = AssetDatabase.FindAssets("t:RoomData", new[] { DataFolder });
-
-            foreach (string guid in dataGuids)
+            var existingData = CollectExistingData();
+            
+            if (!TryCollectAssignments(roomPrefabs, existingData, out var assignments, out var assignedData))
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                RoomData data = AssetDatabase.LoadAssetAtPath<RoomData>(path);
-
-                if (data != null)
-                {
-                    existingData.Add(data);
-                }
+                return false;
+            }
+            
+            if (!TryReuseEmptyAssets(roomPrefabs, assignments, assignedData))
+            {
+                return false;
             }
 
-            var assignments = new Dictionary<int, RoomData>();
-            var assignedData = new HashSet<RoomData>();
-
-            // Prefer assets already linked to the correct prefab.
-            foreach (KeyValuePair<int, GameObject> entry in roomPrefabs)
+            if (!TryStageExistingAssets(assignments))
             {
-                RoomData match = null;
-
-                foreach (RoomData data in existingData)
-                {
-                    if (data.Prefab != entry.Value)
-                    {
-                        continue;
-                    }
-
-                    if (match != null)
-                    {
-                        Debug.LogError($"Multiple RoomData assets reference '{entry.Value.name}'. Resolve the duplicate first.", data);
-                        return;
-                    }
-
-                    match = data;
-                }
-
-                if (match != null)
-                {
-                    assignments.Add(entry.Key, match);
-                    assignedData.Add(match);
-                }
+                return false;
             }
 
-            // Reuse empty assets at the expected paths.
+            if (!TryWriteRoomData(roomPrefabs, assignments, out int created))
+            {
+                return false;
+            }
+
+            AssetDatabase.SaveAssets();
+
+            Debug.Log($"Generated {roomPrefabs.Count} room data assets; {created} created.");
+
+            return true;
+        }
+
+        #region Helper
+
+        private static bool TryReuseEmptyAssets(SortedDictionary<int, GameObject> roomPrefabs, Dictionary<int, RoomData> assignments, HashSet<RoomData> assignedData)
+        {
             foreach (KeyValuePair<int, GameObject> entry in roomPrefabs)
             {
                 string path = GetDataPath(entry.Key);
@@ -124,24 +93,40 @@ namespace LostForest.Editor
                 }
 
                 Debug.LogError($"Cannot use '{path}': it contains an unrelated asset. Rename that asset and generate again.", occupant);
-                return;
+                return false;
             }
 
-            // Move existing assets aside first to avoid rename collisions.
-            foreach (RoomData data in assignments.Values)
-            {
-                string oldPath = AssetDatabase.GetAssetPath(data);
-                string temporaryPath = AssetDatabase.GenerateUniqueAssetPath($"{DataFolder}/RoomData_Temporary.asset");
-                string error = AssetDatabase.MoveAsset(oldPath, temporaryPath);
+            return true;
+        }
 
-                if (!string.IsNullOrEmpty(error))
+        private static bool TryStageExistingAssets(Dictionary<int, RoomData> assignments)
+        {
+            foreach (KeyValuePair<int, RoomData> entry in assignments)
+            {
+                RoomData data = entry.Value;
+                string oldPath = AssetDatabase.GetAssetPath(data);
+                string destinationPath = GetDataPath(entry.Key);
+
+                // Assets already at their correct path do not need staging.
+                if (oldPath == destinationPath)
                 {
-                    Debug.LogError(error, data);
-                    return;
+                    continue;
+                }
+
+                string temporaryPath = AssetDatabase.GenerateUniqueAssetPath($"{DataFolder}/RoomData_Temporary.asset");
+
+                if (!TryMoveAsset(data, temporaryPath))
+                {
+                    return false;
                 }
             }
 
-            int created = 0;
+            return true;
+        }
+
+        private static bool TryWriteRoomData(SortedDictionary<int, GameObject> roomPrefabs, Dictionary<int, RoomData> assignments, out int created)
+        {
+            created = 0;
 
             foreach (KeyValuePair<int, GameObject> entry in roomPrefabs)
             {
@@ -153,31 +138,138 @@ namespace LostForest.Editor
                     AssetDatabase.CreateAsset(data, path);
                     created++;
                 }
-                else
+                else if (!TryMoveAsset(data, path))
                 {
-                    string error = AssetDatabase.MoveAsset(AssetDatabase.GetAssetPath(data), path);
-
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        Debug.LogError(error, data);
-                        return;
-                    }
+                    return false;
                 }
 
-                SerializedObject serializedData = new SerializedObject(data);
-                serializedData.Update();
-                serializedData.FindProperty("prefab").objectReferenceValue = entry.Value;
-                serializedData.ApplyModifiedProperties();
-
-                // Existing world positions remain unchanged.
-                EditorUtility.SetDirty(data);
+                UpdatePrefabReference(data, entry.Value);
             }
 
-            AssetDatabase.SaveAssets();
-
-            Debug.Log($"Generated {roomPrefabs.Count} room data assets; {created} created. Room → r00, Room 1 → r01, Room 2 → r02.");
+            return true;
         }
 
+        private static bool TryMoveAsset(RoomData data, string destinationPath)
+        {
+            string currentPath = AssetDatabase.GetAssetPath(data);
+
+            if (currentPath == destinationPath)
+            {
+                return true;
+            }
+
+            string error = AssetDatabase.MoveAsset(currentPath, destinationPath);
+
+            if (string.IsNullOrEmpty(error))
+            {
+                return true;
+            }
+
+            Debug.LogError(error, data);
+            return false;
+        }
+
+        private static void UpdatePrefabReference(RoomData data, GameObject prefab)
+        {
+            SerializedObject serializedData = new SerializedObject(data);
+            serializedData.Update();
+            serializedData.FindProperty("prefab").objectReferenceValue = prefab;
+            serializedData.ApplyModifiedProperties();
+
+            EditorUtility.SetDirty(data);
+        }
+
+        private static bool TryCollectAssignments(SortedDictionary<int, GameObject> roomPrefabs, List<RoomData> existingData,
+            out Dictionary<int, RoomData> assignments, out HashSet<RoomData> assignedData)
+        {
+            assignments = new Dictionary<int, RoomData>();
+            assignedData = new HashSet<RoomData>();
+
+            foreach (KeyValuePair<int, GameObject> entry in roomPrefabs)
+            {
+                RoomData match = null;
+
+                foreach (RoomData data in existingData)
+                {
+                    if (data.Prefab != entry.Value)
+                    {
+                        continue;
+                    }
+
+                    if (match != null)
+                    {
+                        Debug.LogError($"Multiple RoomData assets reference '{entry.Value.name}'. Resolve the duplicate first.", data);
+                        return false;
+                    }
+
+                    match = data;
+                }
+
+                if (match != null)
+                {
+                    assignments.Add(entry.Key, match);
+                    assignedData.Add(match);
+                }
+            }
+
+            return true;
+        }
+        
+        private static bool TryCollectRoomPrefabs(out SortedDictionary<int, GameObject> roomPrefabs)
+        {
+            roomPrefabs = new SortedDictionary<int, GameObject>();
+            
+            string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { PrefabFolder });
+
+            // Validate all prefab names before modifying assets.
+            foreach (string guid in prefabGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+
+                if (prefab == null || prefab.GetComponent<RoomBounds>() == null)
+                {
+                    continue;
+                }
+
+                if (!TryGetSerial(prefab.name, out int serial))
+                {
+                    Debug.LogError($"Expected 'Room' or 'Room <number>', found '{prefab.name}'.", prefab);
+                    return false;
+                }
+
+                if (roomPrefabs.ContainsKey(serial))
+                {
+                    Debug.LogError($"Multiple room prefabs map to r{serial:D2}. Give each room a unique number.", prefab);
+                    return false;
+                }
+
+                roomPrefabs.Add(serial, prefab);
+            }
+
+            return true;
+        }
+
+        private static List<RoomData> CollectExistingData()
+        {
+            var existingData = new List<RoomData>();
+            
+            string[] dataGuids = AssetDatabase.FindAssets("t:RoomData", new[] { DataFolder });
+
+            foreach (string guid in dataGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                RoomData data = AssetDatabase.LoadAssetAtPath<RoomData>(path);
+
+                if (data != null)
+                {
+                    existingData.Add(data);
+                }
+            }
+
+            return existingData;
+        }
+        
         private static bool TryGetSerial(string prefabName, out int serial)
         {
             serial = 0;
@@ -217,5 +309,7 @@ namespace LostForest.Editor
                 current = next;
             }
         }
+
+        #endregion
     }
 }

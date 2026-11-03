@@ -14,15 +14,21 @@ namespace LostForest.Editor
         [MenuItem("Lost Forest/Rooms/Update Room Catalog")]
         private static void UpdateRoomCatalog()
         {
+            TryUpdateRoomCatalog();
+        }
+        
+        [MenuItem("Lost Forest/Rooms/Update Room Catalog")]
+        public static bool TryUpdateRoomCatalog()
+        {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                return;
+                return false;
             }
 
             if (!AssetDatabase.IsValidFolder(DataFolder))
             {
                 Debug.LogError("Generate Room Data first.");
-                return;
+                return false;
             }
 
             string[] guids = AssetDatabase.FindAssets("t:RoomData", new[] { DataFolder });
@@ -36,7 +42,7 @@ namespace LostForest.Editor
                 if (data == null || data.Prefab == null)
                 {
                     Debug.LogError($"RoomData at '{path}' has no prefab. Fix it before updating the catalog.", data);
-                    return;
+                    return false;
                 }
 
                 rooms.Add(data);
@@ -45,7 +51,7 @@ namespace LostForest.Editor
             if (rooms.Count == 0)
             {
                 Debug.LogWarning("No room data found. Existing catalog was kept.");
-                return;
+                return false;
             }
 
             rooms.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
@@ -57,7 +63,7 @@ namespace LostForest.Editor
                 if (AssetDatabase.LoadMainAssetAtPath(CatalogPath) != null)
                 {
                     Debug.LogError($"Another asset already exists at '{CatalogPath}'.");
-                    return;
+                    return false;
                 }
 
                 catalog = ScriptableObject.CreateInstance<RoomCatalog>();
@@ -80,6 +86,8 @@ namespace LostForest.Editor
             AssetDatabase.SaveAssets();
 
             Debug.Log($"Room catalog updated with {rooms.Count} rooms.", catalog);
+
+            return true;
         }
     }
 }
