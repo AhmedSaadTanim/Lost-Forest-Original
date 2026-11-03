@@ -24,7 +24,7 @@ MonoBehaviour:
   m_Markers:
     m_Objects:
     - {fileID: 3330542257835659501}
-    - {fileID: 6946858671891451630}
+    - {fileID: -5451648727387097294}
 --- !u!114 &-6412404316495545196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -199,6 +199,22 @@ MonoBehaviour:
   m_OpenClipOffsetRotation: {x: 0, y: 0, z: 0, w: 1}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_ApplyOffsets: 0
+--- !u!114 &-5451648727387097294
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
+  m_Name: Signal Emitter
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalEmitter
+  m_Time: 2.5
+  m_Retroactive: 0
+  m_EmitOnce: 0
+  m_Asset: {fileID: 11400000, guid: 3238a1f29e577404bb6eb8829efc74ca, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,7 +232,7 @@ MonoBehaviour:
   - {fileID: -5707866841466691767}
   - {fileID: 127378561444911154}
   - {fileID: -8894157824896906961}
-  m_FixedDuration: 7
+  m_FixedDuration: 3.5
   m_EditorSettings:
     m_Framerate: 60
     m_ScenePreview: 1
@@ -247,7 +263,7 @@ MonoBehaviour:
     m_Start: 2
     m_ClipIn: 0
     m_Asset: {fileID: -6412404316495545196}
-    m_Duration: 4.5
+    m_Duration: 1
     m_TimeScale: 1
     m_ParentTrack: {fileID: 127378561444911154}
     m_EaseInDuration: 0
@@ -331,19 +347,3 @@ MonoBehaviour:
   m_Retroactive: 0
   m_EmitOnce: 0
   m_Asset: {fileID: 11400000, guid: d7010624ba73a4a49aa70ec0651596b3, type: 2}
---- !u!114 &6946858671891451630
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
-  m_Name: Signal Emitter
-  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalEmitter
-  m_Time: 6
-  m_Retroactive: 0
-  m_EmitOnce: 0
-  m_Asset: {fileID: 11400000, guid: 0b81cc699d2126d4cbbff54a8dd1aa48, type: 2}
