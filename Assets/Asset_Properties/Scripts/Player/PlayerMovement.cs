@@ -56,10 +56,12 @@ namespace LostForest.Gameplay
 
         private void Start()
         {
-            input.Player.Enable();
-            player.IsPlayerControlEnabled = true;
-            player.IsPlayerMovementEnabled = true;
             InputSubscriptions();
+            
+            if (player.IsPlayerControlEnabled)
+            {
+                input.Player.Enable();
+            }
         }
 
         private void InputSubscriptions()
@@ -77,7 +79,7 @@ namespace LostForest.Gameplay
 
         private void FixedUpdate()
         {
-            if (player.IsPlayerMovementEnabled)
+            if (player.IsPlayerMovementEnabled && player.IsPlayerControlEnabled)
             {
                 PerformMovement();
             }
@@ -112,6 +114,42 @@ namespace LostForest.Gameplay
             transform.rotation = Quaternion.Euler(0f, direction, 0f);
         }
 
+        public void LockForSequence()
+        {
+            player.IsPlayerControlEnabled = false;
+            player.IsPlayerMovementEnabled = false;
+            input.Player.Disable();
+            StopAllCoroutines();
+
+            movementInput = Vector2.zero;
+            isDashing = false;
+            canDash = true;
+
+            player.Body.linearVelocity = Vector2.zero;
+            player.Body.angularVelocity = 0f;
+
+            if (dust != null)
+            {
+                dust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+        }
+
+        public void UnlockAfterSequence()
+        {
+            ResetAfterRespawn();
+            player.IsPlayerControlEnabled = true;
+            player.IsPlayerMovementEnabled = true;
+            input.Player.Enable();
+
+            // Pick up movement held while the action map was disabled.
+            movementInput = input.Player.Movement.ReadValue<Vector2>();
+
+            if (Mathf.Abs(movementInput.x) > 0.01f)
+            {
+                Flip(movementInput);
+            }
+        }
+        
         #endregion
 
         #region Player Jump Functions

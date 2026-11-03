@@ -12,9 +12,9 @@ namespace LostForest.Gameplay
         public PlayerMovement Movement { get; private set; }
         public PlayerAnimation Animation { get; private set; }
         public PlayerRespawn Respawn { get; private set; }
-    
-        public bool IsPlayerControlEnabled { get; set; }
-        public bool IsPlayerMovementEnabled { get; set; }
+
+        public bool IsPlayerControlEnabled { get; set; } = true;
+        public bool IsPlayerMovementEnabled { get; set; }  = true;
 
         private void Start()
         {
