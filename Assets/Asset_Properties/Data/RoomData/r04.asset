@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dce01413472301f40a0fc11b850b51bf, type: 3}
+  m_Name: r04
+  m_EditorClassIdentifier: LostForest.Runtime::LostForest.World.RoomData
+  prefab: {fileID: 2401148651191088645, guid: 41ad624a0933a0642b11de0d57ca1a17, type: 3}
+  worldPosition: {x: 256.7, y: -11.6, z: 0}
