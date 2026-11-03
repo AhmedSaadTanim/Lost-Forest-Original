@@ -1595,7 +1595,7 @@ PlayableDirector:
   m_GameObject: {fileID: 1964729473}
   m_Enabled: 1
   serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: 41b5d7d1516a4ff4cb8db1470f335fcb, type: 2}
+  m_PlayableAsset: {fileID: 11400000, guid: 775447c416e0d644d8214231d7484b5d, type: 2}
   m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
@@ -1606,6 +1606,10 @@ PlayableDirector:
   - key: {fileID: 127378561444911154, guid: 41b5d7d1516a4ff4cb8db1470f335fcb, type: 2}
     value: {fileID: 1950047285}
   - key: {fileID: -8894157824896906961, guid: 41b5d7d1516a4ff4cb8db1470f335fcb, type: 2}
+    value: {fileID: 411946964}
+  - key: {fileID: 7145166611331324646, guid: 775447c416e0d644d8214231d7484b5d, type: 2}
+    value: {fileID: 1950047285}
+  - key: {fileID: -6378806811484574964, guid: 775447c416e0d644d8214231d7484b5d, type: 2}
     value: {fileID: 411946964}
   m_ExposedReferences:
     m_References: []
@@ -1985,22 +1989,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Signals.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: 'm_Events.m_Signals.Array.data[2]'
       value: 
       objectReference: {fileID: 11400000, guid: 3238a1f29e577404bb6eb8829efc74ca, type: 2}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: 'm_Events.m_Signals.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 97d475d60522b4548b471a375ababb12, type: 2}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[2].m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
@@ -2012,7 +2028,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1964729478}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1964729478}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
@@ -2024,6 +2048,10 @@ PrefabInstance:
       value: ShowLine
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ShowLine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: LostForest.Dialogue.TimelineDialogue, LostForest.Runtime
       objectReference: {fileID: 0}
@@ -2032,11 +2060,23 @@ PrefabInstance:
       value: LostForest.Dialogue.TimelineDialogue, LostForest.Runtime
       objectReference: {fileID: 0}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: LostForest.Dialogue.TimelineDialogue, LostForest.Runtime
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
       objectReference: {fileID: 11400000, guid: 44ee8695e77b7f34ebafc7220013d355, type: 2}
     - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 11400000, guid: 180dcc8d8957c42428b2f48b39c38867, type: 2}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
       propertyPath: m_Events.m_Events.Array.data[2].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: LostForest.Dialogue.DialogueLine, LostForest.Runtime
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572611282910282189, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: LostForest.Dialogue.DialogueLine, LostForest.Runtime
       objectReference: {fileID: 0}
     - target: {fileID: 8727632356368150727, guid: e13d0a23027a322409e1dc02fc81f22d, type: 3}
@@ -2053,8 +2093,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 92245050}
+  - {fileID: 1964729476}
   - {fileID: 1573017187}
   - {fileID: 2174334679843760201}
-  - {fileID: 1964729476}
   - {fileID: 523298012}
   - {fileID: 338331309}

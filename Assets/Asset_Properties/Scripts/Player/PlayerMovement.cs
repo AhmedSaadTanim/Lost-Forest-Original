@@ -25,6 +25,7 @@ namespace LostForest.Gameplay
         private PlayerInput input;
         private Vector2 movementInput;
         public Vector2 GetMovementInput => movementInput;
+        public bool IsStandingOnGround => isGrounded && Mathf.Abs(player.Body.linearVelocity.y) < 0.1f;
         private bool canJump = true;
         private bool doubleJump;
         private bool canDash = true;

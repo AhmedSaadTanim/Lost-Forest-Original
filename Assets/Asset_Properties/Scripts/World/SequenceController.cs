@@ -1,3 +1,4 @@
+using System.Collections;
 using LostForest.Gameplay;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -28,28 +29,72 @@ namespace LostForest.World
 
         public bool PlaySequence(PlayableAsset sequence)
         {
-            if (!isActiveAndEnabled || sequence == null || player == null)
+            if (!TryLockPlayer(sequence))
             {
-                Debug.LogWarning("Sequence requires an active controller, a Timeline asset, and a Player reference.", this);
                 return false;
             }
 
-            // Avoid overlapping sequences or taking over another system's lock.
-            if (ownsControlLock || !player.IsPlayerControlEnabled || !player.IsPlayerMovementEnabled)
+            StartPlayback(sequence);
+            return true;
+        }
+
+        public bool PlaySequenceAfterLanding(PlayableAsset sequence)
+        {
+            if (!TryLockPlayer(sequence))
+            {
+                return false;
+            }
+
+            StartCoroutine(WaitForLanding(sequence));
+            return true;
+        }
+        
+        private bool TryLockPlayer(PlayableAsset sequence)
+        {
+            if (!isActiveAndEnabled || sequence == null || player == null)
+            {
+                Debug.LogWarning("Assign a sequence and Player to an active sequence controller.", this);
+                return false;
+            }
+
+            if (ownsControlLock ||
+                !player.IsPlayerControlEnabled ||
+                !player.IsPlayerMovementEnabled)
             {
                 return false;
             }
 
             player.Movement.LockForSequence();
             ownsControlLock = true;
+            return true;
+        }
+        
+        private IEnumerator WaitForLanding(PlayableAsset sequence)
+        {
+            // Allow physics to update after movement was stopped.
+            yield return new WaitForFixedUpdate();
 
+            while (player != null && !player.Movement.IsStandingOnGround)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            if (player == null)
+            {
+                RestorePlayerControl();
+                yield break;
+            }
+
+            StartPlayback(sequence);
+        }
+        
+        private void StartPlayback(PlayableAsset sequence)
+        {
             try
             {
                 director.playableAsset = sequence;
                 director.time = 0d;
                 director.Play();
-                Debug.Log($"Sequence started: {sequence.name}. Duration: {director.duration:F2} seconds.", this);
-                return true;
             }
             catch
             {
@@ -57,9 +102,11 @@ namespace LostForest.World
                 throw;
             }
         }
-
+        
         public void StopSequence()
         {
+            StopAllCoroutines();
+            
             if (!ownsControlLock)
             {
                 return;
@@ -72,6 +119,7 @@ namespace LostForest.World
         private void OnDirectorStopped(PlayableDirector stoppedDirector)
         {
             Debug.Log($"Sequence stopped at {stoppedDirector.time:F2} seconds.", this);
+            StopAllCoroutines();
             RestorePlayerControl();
         }
 
