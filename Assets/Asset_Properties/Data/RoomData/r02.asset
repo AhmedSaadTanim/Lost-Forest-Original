@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce01413472301f40a0fc11b850b51bf, type: 3}
   m_Name: r02
   m_EditorClassIdentifier: LostForest.Runtime::LostForest.World.RoomData
-  prefab: {fileID: 2401148651191088645, guid: 75127194ab7dca64e80096b6d0a68cc2, type: 3}
-  worldPosition: {x: 100, y: -15, z: 0}
+  prefab: {fileID: 2401148651191088645, guid: 9c77fda66443b154080a9070d8a7807c, type: 3}
+  worldPosition: {x: 52, y: 0, z: 0}
