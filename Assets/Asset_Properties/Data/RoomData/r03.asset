@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: r03
   m_EditorClassIdentifier: LostForest.Runtime::LostForest.World.RoomData
   prefab: {fileID: 2401148651191088645, guid: 75127194ab7dca64e80096b6d0a68cc2, type: 3}
-  worldPosition: {x: 179.6, y: -20, z: 0}
+  worldPosition: {x: 218.06, y: -48, z: 0}

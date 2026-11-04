@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using LostForest.World;
 using UnityEditor;
 using UnityEngine;
@@ -25,7 +26,7 @@ namespace LostForest.Editor
 
                 if (GUILayout.Button("Bake Positions Only"))
                 {
-                    TryRunStage("Bake Room Layout", TryBakeRoomLayout);
+                    TryRunStage("Bake Room Layout", () => TryBakeRoomLayout(propagateSequentialRooms: false));
                 }
             }
         }
@@ -37,7 +38,7 @@ namespace LostForest.Editor
                 return;
             }
 
-            if (!TryRunStage("Bake Room Layout", TryBakeRoomLayout))
+            if (!TryRunStage("Bake Room Layout", () => TryBakeRoomLayout(propagateSequentialRooms: true)))
             {
                 return;
             }
@@ -70,7 +71,7 @@ namespace LostForest.Editor
             }
         }
         
-        private bool TryBakeRoomLayout()
+        private bool TryBakeRoomLayout(bool propagateSequentialRooms)
         {
             serializedObject.Update();
 
@@ -153,6 +154,11 @@ namespace LostForest.Editor
                 return false;
             }
 
+            if (propagateSequentialRooms && !TryExpandSequentialPlacements(dataByPrefab.Values, placements))
+            {
+                return false;
+            }
+            
             Undo.IncrementCurrentGroup();
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Bake Room Layout");
@@ -169,6 +175,53 @@ namespace LostForest.Editor
             AssetDatabase.SaveAssets();
 
             Debug.Log($"Saved positions into {placements.Count} RoomData assets.", target);
+
+            return true;
+        }
+        
+        private static bool TryExpandSequentialPlacements(IEnumerable<RoomData> allRoomData, 
+            Dictionary<RoomData, Vector3> positionsToBake)
+        {
+            var roomsBySerial = new SortedDictionary<int, RoomData>();
+
+            foreach (RoomData room in allRoomData)
+            {
+                if (room == null || room.Prefab == null)
+                {
+                    continue;
+                }
+
+                string name = room.name;
+
+                if (name.Length < 2 || (name[0] != 'r' && name[0] != 'R') ||
+                    !int.TryParse(name.Substring(1), NumberStyles.None, CultureInfo.InvariantCulture, out int serial))
+                {
+                    Debug.LogError($"Expected a room data name like r00, found '{name}'.", room);
+                    return false;
+                }
+
+                if (roomsBySerial.ContainsKey(serial))
+                {
+                    Debug.LogError($"Multiple room data assets use serial r{serial:D2}.", room);
+                    return false;
+                }
+
+                roomsBySerial.Add(serial, room);
+            }
+
+            Vector3 shift = Vector3.zero;
+
+            foreach (RoomData room in roomsBySerial.Values)
+            {
+                if (positionsToBake.TryGetValue(room, out Vector3 scenePosition))
+                {
+                    shift = scenePosition - room.WorldPosition;
+                }
+                else if (!shift.Equals(Vector3.zero))
+                {
+                    positionsToBake.Add(room, room.WorldPosition + shift);
+                }
+            }
 
             return true;
         }
