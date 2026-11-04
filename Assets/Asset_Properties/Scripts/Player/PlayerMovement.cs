@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using LostForest.Common;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,6 +27,7 @@ namespace LostForest.Gameplay
         private Vector2 movementInput;
         public Vector2 GetMovementInput => movementInput;
         public bool IsStandingOnGround => isGrounded && Mathf.Abs(player.Body.linearVelocity.y) < 0.1f;
+        private readonly List<ContactPoint2D> groundContacts = new(8);
         private bool canJump = true;
         private bool doubleJump;
         private bool canDash = true;
@@ -80,12 +82,60 @@ namespace LostForest.Gameplay
 
         private void FixedUpdate()
         {
+            UpdateGroundedState();
+            
             if (player.IsPlayerMovementEnabled && player.IsPlayerControlEnabled)
             {
                 PerformMovement();
             }
         }
 
+        private void UpdateGroundedState()
+        {
+            bool wasGrounded = isGrounded;
+            isGrounded = HasGroundSupport();
+
+            if (isGrounded && !wasGrounded)
+            {
+                canJump = true;
+                doubleJump = true;
+                canDash = true;
+                hasAirDashed = true;
+            }
+            else if (!isGrounded && wasGrounded)
+            {
+                canDash = false;
+                hasAirDashed = false;
+            }
+        }
+        
+        private bool HasGroundSupport()
+        {
+            // A jump can start before the previous physics step's contacts clear.
+            if (player.Body.linearVelocity.y > 0.1f)
+            {
+                return false;
+            }
+
+            player.Collider.GetContacts(groundContacts);
+
+            foreach (ContactPoint2D contact in groundContacts)
+            {
+                bool playerIsOther = contact.otherCollider == player.Collider;
+                Collider2D surface = playerIsOther ? contact.collider : contact.otherCollider;
+                Vector2 normal = playerIsOther ? contact.normal : -contact.normal;
+
+                if (surface != null &&
+                    (groundLayer.value & (1 << surface.gameObject.layer)) != 0 &&
+                    normal.y > 0.5f)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
         #region Player Movement Functions
 
         private void PerformMovement()
@@ -177,24 +227,7 @@ namespace LostForest.Gameplay
                 player.Body.linearVelocity = new Vector2(velocity.x, velocity.y * 0.5f);
             }
         }
-
-        bool IsGrounded()
-        {
-            float extraHeight = 0.1f;
-            Vector2 rayOrigin = new Vector2(player.Collider.bounds.center.x, player.Collider.bounds.min.y - 0.05f);
-            float rayLength = player.Collider.bounds.extents.y + extraHeight;
-
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, rayLength, groundLayer);
-
-            // Debug the Raycast in the Scene view
-            Debug.DrawLine(rayOrigin, rayOrigin + Vector2.down * rayLength,
-                hit.collider != null ? Color.green : Color.red, 0.1f);
-
-            return hit.collider != null;
-        }
-
-
-
+        
         #endregion
 
         #region Respawn
@@ -314,30 +347,12 @@ namespace LostForest.Gameplay
 
         void OnCollisionEnter2D(Collision2D other)
         {
-            if (other.gameObject.CompareTag("Ground") && IsGrounded())
-            {
-                hasAirDashed = true; // Reset air dash on landing
-                canDash = true;
-                canJump = true;
-                doubleJump = true;
-                isGrounded = true;
-            }
-            else if (other.gameObject.CompareTag("Wall"))
+            if (other.gameObject.CompareTag("Wall") && !isGrounded)
             {
                 canJump = true;
                 doubleJump = false;
-                isGrounded = false;
             }
         }
-
-        void OnCollisionExit2D(Collision2D other)
-        {
-            if (other.gameObject.CompareTag("Ground"))
-            {
-                canDash = false;
-                hasAirDashed = false;
-                isGrounded = false;
-            }
-        }
+        
     }
 }
